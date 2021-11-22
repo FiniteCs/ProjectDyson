@@ -24,12 +24,15 @@
         // Keywords
         IniKeyword,
 
+        // Clauses
+        EqualsClause,
+
         // Expressions
+        InvalidExpression,
+
         BinaryExpression,
         ParenthesizedExpression,
         LiteralExpression,
-        EqualsClause,
-        InvalidExpression,
 
         // Statements
         IniDefiningStatement,

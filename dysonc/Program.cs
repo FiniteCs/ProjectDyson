@@ -1,7 +1,7 @@
 ﻿global using System;
 global using System.Collections.Generic;
 global using System.Linq;
-
+using Dyson.CodeAnalysis.Binding;
 using Dyson.CodeAnalysis.Syntax;
 
 namespace Dyson
@@ -25,12 +25,15 @@ namespace Dyson
                 }
 
                 SyntaxTree syntaxTree = SyntaxTree.Parse(line);
+                Binder binder = new();
+                BoundExpression expression = binder.BindStatement(syntaxTree.Root);
+                IEnumerable<string> diagnostics = syntaxTree.Diagnostics.Concat(binder.Diagnostics);
 
                 PrettyPrint(syntaxTree.Root);
-                if (syntaxTree.Diagnostics.Any())
+                if (diagnostics.Any())
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    foreach (var diagnostic in syntaxTree.Diagnostics)
+                    foreach (var diagnostic in diagnostics)
                         Console.WriteLine(diagnostic);
 
                     Console.ResetColor();
