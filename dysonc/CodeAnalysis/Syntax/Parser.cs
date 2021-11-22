@@ -1,4 +1,6 @@
-﻿namespace Dyson.CodeAnalysis.Syntax
+﻿using Dyson.CodeAnalysis.Syntax.Expressions;
+
+namespace Dyson.CodeAnalysis.Syntax
 {
     internal sealed class Parser
     {

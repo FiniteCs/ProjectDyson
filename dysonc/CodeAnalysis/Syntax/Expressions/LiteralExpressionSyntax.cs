@@ -1,4 +1,4 @@
-﻿namespace Dyson.CodeAnalysis.Syntax
+﻿namespace Dyson.CodeAnalysis.Syntax.Expressions
 {
     internal sealed class LiteralExpressionSyntax
         : ExpressionSyntax
