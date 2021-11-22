@@ -1,6 +1,7 @@
 ﻿namespace Dyson.CodeAnalysis.Syntax
 {
-    internal struct SyntaxToken
+    internal class SyntaxToken
+        : SyntaxNode
     {
         public SyntaxToken(SyntaxKind kind, int position, string text, object value)
         {
@@ -10,9 +11,11 @@
             Value = value;
         }
 
-        public SyntaxKind Kind { get; }
         public int Position { get; }
         public string Text { get; }
         public object Value { get; }
+
+        public override SyntaxKind Kind { get; }
+        public override IEnumerable<SyntaxNode> GetChildren() => Enumerable.Empty<SyntaxNode>();
     }
 }

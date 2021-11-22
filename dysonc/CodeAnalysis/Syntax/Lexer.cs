@@ -32,6 +32,24 @@
 
             int start = position_;
 
+            switch (Current)
+            {
+                case '+':
+                    return new SyntaxToken(SyntaxKind.PlusToken, position_++, "+", null);
+                case '-':
+                    return new SyntaxToken(SyntaxKind.MinusToken, position_++, "-", null);
+                case '*':
+                    return new SyntaxToken(SyntaxKind.StarToken, position_++, "*", null);
+                case '/':
+                    return new SyntaxToken(SyntaxKind.SlashToken, position_++, "/", null);
+                case '(':
+                    return new SyntaxToken(SyntaxKind.OpenParenthesisToken, position_++, "(", null);
+                case ')':
+                    return new SyntaxToken(SyntaxKind.CloseParenthesisToken, position_++, ")", null);
+                default:
+                    break;
+            }
+
             if (char.IsWhiteSpace(Current))
             {
                 while (char.IsWhiteSpace(Current))
@@ -50,7 +68,7 @@
                 int length = position_ - start;
                 string text = text_.Substring(start, length);
                 if (!long.TryParse(text, out long value))
-                    diagnostics_.Add($"{text} is not a valid Int32");
+                    diagnostics_.Add($"{text} is not a valid Int64");
 
                 return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);
             }

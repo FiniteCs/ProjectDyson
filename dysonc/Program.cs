@@ -1,5 +1,6 @@
 ﻿global using System;
 global using System.Collections.Generic;
+global using System.Linq;
 
 using Dyson.CodeAnalysis.Syntax;
 
@@ -16,15 +17,54 @@ namespace Dyson
                 if (string.IsNullOrWhiteSpace(line))
                     break;
 
-                Lexer lexer = new(line);
-                while (true)
+                if (line == "#cls")
                 {
-                    SyntaxToken token = lexer.Lex();
-                    if (token.Kind == SyntaxKind.EndOfFileToken)
-                        break;
-                    Console.WriteLine($"{token.Kind} : '{token.Text}' : {token.Value ?? "null"}");
+                    Console.Clear();
+                    continue;
+                }
+
+                SyntaxTree syntaxTree = SyntaxTree.Parse(line);
+
+                PrettyPrint(syntaxTree.Root);
+                if (syntaxTree.Diagnostics.Any())
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    foreach (var diagnostic in syntaxTree.Diagnostics)
+                        Console.WriteLine(diagnostic);
+
+                    Console.ResetColor();
                 }
             }
+        }
+
+        private static void PrettyPrint(SyntaxNode node, string indent = "", bool isLast = true)
+        {
+            var marker = isLast ? "└──" : "├──";
+
+            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write(indent);
+            Console.Write(marker);
+
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.Write(node.Kind);
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            if (node is SyntaxToken t && t.Value != null)
+            {
+                Console.Write(" ");
+                Console.Write(t.Value);
+            }
+
+            Console.WriteLine();
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            indent += isLast ? "   " : "│  ";
+
+            var lastChild = node.GetChildren().LastOrDefault();
+
+            foreach (var child in node.GetChildren())
+                PrettyPrint(child, indent, child == lastChild);
         }
     }
 }

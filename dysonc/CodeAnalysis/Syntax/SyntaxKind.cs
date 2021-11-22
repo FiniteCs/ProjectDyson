@@ -7,5 +7,14 @@
         BadToken,
         WhitespaceToken,
         NumberToken,
+        PlusToken,
+        MinusToken,
+        StarToken,
+        SlashToken,
+        OpenParenthesisToken,
+        CloseParenthesisToken,
+        BinaryExpression,
+        ParenthesizedExpression,
+        LiteralExpression,
     }
 }
