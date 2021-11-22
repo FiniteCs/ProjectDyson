@@ -1,6 +1,6 @@
 ﻿namespace Dyson.CodeAnalysis.Syntax
 {
-    internal abstract class SyntaxNode
+    public abstract class SyntaxNode
     {
         public abstract SyntaxKind Kind { get; }
 

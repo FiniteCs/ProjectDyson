@@ -1,6 +1,6 @@
 ﻿namespace Dyson.CodeAnalysis.Syntax.Expressions
 {
-    internal sealed class LiteralExpressionSyntax
+    public sealed class LiteralExpressionSyntax
         : ExpressionSyntax
     {
         public LiteralExpressionSyntax(SyntaxToken literalToken)

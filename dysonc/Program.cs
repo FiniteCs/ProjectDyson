@@ -1,6 +1,7 @@
 ﻿global using System;
 global using System.Collections.Generic;
 global using System.Linq;
+using Dyson.CodeAnalysis;
 using Dyson.CodeAnalysis.Binding;
 using Dyson.CodeAnalysis.Syntax;
 
@@ -25,9 +26,9 @@ namespace Dyson
                 }
 
                 SyntaxTree syntaxTree = SyntaxTree.Parse(line);
-                Binder binder = new();
-                BoundExpression expression = binder.BindStatement(syntaxTree.Root);
-                IEnumerable<string> diagnostics = syntaxTree.Diagnostics.Concat(binder.Diagnostics);
+                Compilation compilation = new(syntaxTree);
+                Result result = compilation.GetResult();
+                IEnumerable<string> diagnostics = result.Diagnostics;
 
                 PrettyPrint(syntaxTree.Root);
                 if (diagnostics.Any())

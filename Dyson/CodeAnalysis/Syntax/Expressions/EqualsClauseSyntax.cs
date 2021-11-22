@@ -1,6 +1,6 @@
 ﻿namespace Dyson.CodeAnalysis.Syntax.Expressions
 {
-    internal sealed class EqualsClauseSyntax
+    public sealed class EqualsClauseSyntax
         : ExpressionSyntax
     {
         public EqualsClauseSyntax(SyntaxToken equalsToken, ExpressionSyntax expression)

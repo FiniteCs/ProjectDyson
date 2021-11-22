@@ -1,6 +1,6 @@
 ﻿namespace Dyson.CodeAnalysis.Syntax
 {
-    internal class SyntaxToken
+    public class SyntaxToken
         : SyntaxNode
     {
         public SyntaxToken(SyntaxKind kind, int position, string text, object value)

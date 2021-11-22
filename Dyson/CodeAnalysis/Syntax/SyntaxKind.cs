@@ -1,6 +1,6 @@
 ﻿namespace Dyson.CodeAnalysis.Syntax
 {
-    internal enum SyntaxKind
+    public enum SyntaxKind
     {
         // Tokens
         EndOfFileToken,

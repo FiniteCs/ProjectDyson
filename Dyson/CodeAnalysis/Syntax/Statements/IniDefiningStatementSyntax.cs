@@ -2,7 +2,7 @@
 
 namespace Dyson.CodeAnalysis.Syntax.Statements
 {
-    internal sealed class IniDefiningStatementSyntax
+    public sealed class IniDefiningStatementSyntax
         : StatementSyntax
     {
         public IniDefiningStatementSyntax(SyntaxToken iniKeyword, ExpressionSyntax equalsClause)

@@ -1,6 +1,6 @@
 ﻿namespace Dyson.CodeAnalysis.Syntax.Expressions
 {
-    internal sealed class BinaryExpressionSyntax
+    public sealed class BinaryExpressionSyntax
         : ExpressionSyntax
     {
         public BinaryExpressionSyntax(ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)

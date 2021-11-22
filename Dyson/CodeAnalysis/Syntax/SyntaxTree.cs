@@ -2,7 +2,7 @@
 
 namespace Dyson.CodeAnalysis.Syntax
 {
-    internal sealed class SyntaxTree
+    public sealed class SyntaxTree
     {
         public SyntaxTree(IEnumerable<string> diagnostics, StatementSyntax root, SyntaxToken endOfFileToken)
         {

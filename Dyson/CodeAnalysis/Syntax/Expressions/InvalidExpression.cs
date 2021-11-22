@@ -1,6 +1,6 @@
 ﻿namespace Dyson.CodeAnalysis.Syntax.Expressions
 {
-    internal sealed class InvalidExpression
+    public sealed class InvalidExpression
         : ExpressionSyntax
     {
         public InvalidExpression(SyntaxKind expressionKind)

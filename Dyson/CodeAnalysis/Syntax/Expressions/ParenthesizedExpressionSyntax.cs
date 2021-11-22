@@ -1,6 +1,6 @@
 ﻿namespace Dyson.CodeAnalysis.Syntax.Expressions
 {
-    internal sealed class ParenthesizedExpressionSyntax
+    public sealed class ParenthesizedExpressionSyntax
         : ExpressionSyntax
     {
         public ParenthesizedExpressionSyntax(SyntaxToken openParen, ExpressionSyntax expression, SyntaxToken closeParen)

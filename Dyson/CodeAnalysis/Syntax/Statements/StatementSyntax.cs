@@ -1,6 +1,6 @@
 ﻿namespace Dyson.CodeAnalysis.Syntax.Statements
 {
-    internal abstract class StatementSyntax
+    public abstract class StatementSyntax
         : SyntaxNode
     {
     }

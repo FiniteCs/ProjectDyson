@@ -1,6 +1,6 @@
 ﻿namespace Dyson.CodeAnalysis.Syntax.Expressions
 {
-    internal abstract class ExpressionSyntax
+    public abstract class ExpressionSyntax
         : SyntaxNode
     {
     }
