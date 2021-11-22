@@ -18,5 +18,16 @@
                     return 0;
             }
         }
+
+        public static SyntaxKind GetKeywordKind(string text)
+        {
+            switch (text)
+            {
+                case "ini":
+                    return SyntaxKind.IniKeyword;
+                default:
+                    return SyntaxKind.IdentifierToken;
+            }
+        }
     }
 }

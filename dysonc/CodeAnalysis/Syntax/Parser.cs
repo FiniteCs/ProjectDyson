@@ -1,4 +1,5 @@
 ﻿using Dyson.CodeAnalysis.Syntax.Expressions;
+using Dyson.CodeAnalysis.Syntax.Statements;
 
 namespace Dyson.CodeAnalysis.Syntax
 {
@@ -53,11 +54,21 @@ namespace Dyson.CodeAnalysis.Syntax
             return new SyntaxToken(kind, Current.Position, null, null);
         }
 
-        public SyntaxTree Parse()
+        private ExpressionSyntax MatchExpression(SyntaxKind kind)
         {
             ExpressionSyntax expression = ParseExpression();
+            if (expression.Kind == kind)
+                return expression;
+
+            diagnostics_.Add($"Unexpected expression '{expression.Kind}' expected '{kind}'");
+            return new InvalidExpression(kind);
+        }
+
+        public SyntaxTree Parse()
+        {
+            StatementSyntax statement = ParsePrimaryStatement();
             SyntaxToken endOfFileToken = MatchToken(SyntaxKind.EndOfFileToken);
-            return new SyntaxTree(diagnostics_, expression, endOfFileToken);
+            return new SyntaxTree(diagnostics_, statement, endOfFileToken);
         }
 
         private ExpressionSyntax ParseExpression()
@@ -85,16 +96,35 @@ namespace Dyson.CodeAnalysis.Syntax
 
         private ExpressionSyntax ParsePrimaryExpression()
         {
-            if (Current.Kind == SyntaxKind.OpenParenthesisToken)
+            switch (Current.Kind)
             {
-                SyntaxToken left = NextToken();
-                ExpressionSyntax expression = ParseExpression();
-                SyntaxToken right = MatchToken(SyntaxKind.CloseParenthesisToken);
-                return new ParenthesizedExpressionSyntax(left, expression, right);
-            }
+                case SyntaxKind.OpenParenthesisToken:
+                    {
+                        SyntaxToken left = NextToken();
+                        ExpressionSyntax expression = ParseExpression();
+                        SyntaxToken right = MatchToken(SyntaxKind.CloseParenthesisToken);
+                        return new ParenthesizedExpressionSyntax(left, expression, right);
+                    }
 
-            SyntaxToken numberToken = MatchToken(SyntaxKind.NumberToken);
-            return new LiteralExpressionSyntax(numberToken);
+                case SyntaxKind.EqualsToken:
+                    {
+                        SyntaxToken equalsToken = NextToken();
+                        ExpressionSyntax expression = ParseExpression();
+                        return new EqualsClauseSyntax(equalsToken, expression);
+                    }
+                default:
+                    {
+                        SyntaxToken literalToken = NextToken();
+                        return new LiteralExpressionSyntax(literalToken);
+                    }
+            }
+        }
+
+        private StatementSyntax ParsePrimaryStatement()
+        {
+            SyntaxToken iniKeyword = MatchToken(SyntaxKind.IniKeyword);
+            ExpressionSyntax equalsClause = MatchExpression(SyntaxKind.EqualsClause);
+            return new IniDefiningStatementSyntax(iniKeyword, equalsClause);
         }
     }
 }

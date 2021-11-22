@@ -12,6 +12,7 @@ namespace Dyson
         {
             while (true)
             {
+                Console.ResetColor();
                 Console.Write("> ");
                 string line = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(line))

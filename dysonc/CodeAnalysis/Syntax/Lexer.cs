@@ -46,8 +46,24 @@
                     return new SyntaxToken(SyntaxKind.OpenParenthesisToken, position_++, "(", null);
                 case ')':
                     return new SyntaxToken(SyntaxKind.CloseParenthesisToken, position_++, ")", null);
+                case '=':
+                    return new SyntaxToken(SyntaxKind.EqualsToken, position_++, "=", null);
                 default:
                     break;
+            }
+
+            if (Current == '\"')
+            {
+                position_++;
+                int hStart = position_;
+                while (char.IsAscii(Current) &&
+                       Current != '\"')
+                    position_++;
+
+                int length = position_ - hStart;
+                string text = text_.Substring(hStart, length);
+                position_++;
+                return new SyntaxToken(SyntaxKind.StringToken, hStart, text, text);
             }
 
             if (char.IsWhiteSpace(Current))
@@ -58,6 +74,17 @@
                 int length = position_ - start;
                 string text = text_.Substring(start, length);
                 return new SyntaxToken(SyntaxKind.WhitespaceToken, start, text, null);
+            }
+
+            if (char.IsLetter(Current))
+            {
+                while (char.IsLetter(Current))
+                    position_++;
+
+                int length = position_ - start;
+                string text = text_.Substring(start, length);
+                SyntaxKind kind = SyntaxFacts.GetKeywordKind(text);
+                return new SyntaxToken(kind, start, text, null);
             }
 
             if (char.IsDigit(Current))

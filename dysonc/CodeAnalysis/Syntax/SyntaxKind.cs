@@ -5,16 +5,33 @@
         // Tokens
         EndOfFileToken,
         BadToken,
-        WhitespaceToken,
-        NumberToken,
+
         PlusToken,
         MinusToken,
         StarToken,
         SlashToken,
+        EqualsToken,
+
+        WhitespaceToken,
         OpenParenthesisToken,
         CloseParenthesisToken,
+        IdentifierToken,
+
+        // Literals
+        NumberToken,
+        StringToken,
+
+        // Keywords
+        IniKeyword,
+
+        // Expressions
         BinaryExpression,
         ParenthesizedExpression,
         LiteralExpression,
+        EqualsClause,
+        InvalidExpression,
+
+        // Statements
+        IniDefiningStatement,
     }
 }
