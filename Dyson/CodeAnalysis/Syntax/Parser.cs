@@ -78,7 +78,18 @@ namespace Dyson.CodeAnalysis.Syntax
 
         private ExpressionSyntax ParseBinaryExpression(int parentPrecedence = 0)
         {
-            ExpressionSyntax left = ParsePrimaryExpression();
+            ExpressionSyntax left;
+            int unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
+            if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrecedence)
+            {
+                SyntaxToken operatorToken = NextToken();
+                ExpressionSyntax operand = ParseBinaryExpression(unaryOperatorPrecedence);
+                left = new UnaryExpressionSyntax(operatorToken, operand);
+            }
+            else
+            {
+                left = ParsePrimaryExpression();
+            }
 
             while (true)
             {

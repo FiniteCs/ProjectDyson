@@ -23,6 +23,8 @@ namespace Dyson.CodeAnalysis.Binding
                     return BindParenthesizedExpression((ParenthesizedExpressionSyntax)syntax);
                 case SyntaxKind.LiteralExpression:
                     return BindLiteralExpression((LiteralExpressionSyntax)syntax);
+                case SyntaxKind.UnaryExpression:
+                    return BindUnaryExpression((UnaryExpressionSyntax)syntax);
                 case SyntaxKind.BinaryExpression:
                     return BindBinaryExpression((BinaryExpressionSyntax)syntax);
                 case SyntaxKind.EqualsClause:
@@ -52,6 +54,18 @@ namespace Dyson.CodeAnalysis.Binding
         {
             object value = syntax.LiteralToken.Value ?? 0;
             return new BoundLiteralExpression(value);
+        }
+
+        private BoundExpression BindUnaryExpression(UnaryExpressionSyntax syntax)
+        {
+            BoundExpression boundOperand = BindExpression(syntax.Operand);
+            BoundUnaryOperator boundOperator = BoundUnaryOperator.Bind(syntax.UnaryOperator.Kind, boundOperand.Type);
+            if (boundOperator == null)
+            {
+                diagnostics_.Add($"Unary operator '{syntax.UnaryOperator.Text}' is not defined for type {boundOperand.Type}.");
+                return boundOperand;
+            }
+            return new BoundUnaryExpression(boundOperator, boundOperand);
         }
 
         private BoundExpression BindBinaryExpression(BinaryExpressionSyntax syntax)

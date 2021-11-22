@@ -36,5 +36,6 @@
 
         // Statements
         IniDefiningStatement,
+        UnaryExpression,
     }
 }
