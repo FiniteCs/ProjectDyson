@@ -8,6 +8,11 @@
             Kind = expressionKind;
         }
 
+        public InvalidExpression()
+        {
+
+        }
+
         public override SyntaxKind Kind { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()

@@ -8,11 +8,12 @@
         // Expressions
         BinaryExpression,
         LiteralExpression,
+        UnaryExpression,
 
         // Statements
         IniDefiningStatement,
-        UnaryExpression,
         VariableAssignment,
         VariableDeclarationStatement,
+        SectionStatement,
     }
 }

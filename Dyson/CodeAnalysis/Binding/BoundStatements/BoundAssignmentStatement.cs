@@ -2,10 +2,10 @@
 
 namespace Dyson.CodeAnalysis.Binding.BoundStatements
 {
-    internal sealed class BoundAssignmentExpression
+    internal sealed class BoundAssignmentStatement
         : BoundStatement
     {
-        public BoundAssignmentExpression(VariableSymbol variable, BoundExpression expression)
+        public BoundAssignmentStatement(VariableSymbol variable, BoundExpression expression)
         {
             Variable = variable;
             Expression = expression;

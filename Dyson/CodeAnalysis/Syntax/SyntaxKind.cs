@@ -36,6 +36,7 @@
         BoolKeyword,
         TrueKeyword,
         FalseKeyword,
+        SectionKeyword,
 
         // Clauses
         EqualsClause,
@@ -51,6 +52,7 @@
 
         // Statements
         IniDefiningStatement,
+        SectionStatement,
         VariableDeclarationStatement,
         InvalidStatement,
         VariableReassignmentStatement,

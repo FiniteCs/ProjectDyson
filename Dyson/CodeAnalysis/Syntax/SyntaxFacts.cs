@@ -52,6 +52,7 @@
                 "true" => SyntaxKind.TrueKeyword,
                 "false" => SyntaxKind.FalseKeyword,
                 "bool" => SyntaxKind.BoolKeyword,
+                "section" => SyntaxKind.SectionKeyword,
                 _ => SyntaxKind.IdentifierToken,
             };
         }

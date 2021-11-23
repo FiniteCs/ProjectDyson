@@ -12,9 +12,9 @@ namespace Dyson.CodeAnalysis
 
         public SyntaxTree Syntax { get; }
 
-        public Result GetResult(Dictionary<VariableSymbol, object> variables)
+        public Result GetResult(Dictionary<VariableSymbol, object> variables, List<SectionSymbol> sections)
         {
-            Binder binder = new(variables);
+            Binder binder = new(variables, sections);
             binder.BindStatement(Syntax.Root);
 
             string[] diagnostics = Syntax.Diagnostics.Concat(binder.Diagnostics).ToArray();

@@ -12,6 +12,7 @@ namespace Dyson
         private static void Main()
         {
             Dictionary<VariableSymbol, object> variable = new();
+            List<SectionSymbol> sections = new();
             while (true)
             {
                 Console.ResetColor();
@@ -28,7 +29,7 @@ namespace Dyson
 
                 SyntaxTree syntaxTree = SyntaxTree.Parse(line);
                 Compilation compilation = new(syntaxTree);
-                Result result = compilation.GetResult(variable);
+                Result result = compilation.GetResult(variable, sections);
                 IEnumerable<string> diagnostics = result.Diagnostics;
 
                 PrettyPrint(syntaxTree.Root);

@@ -12,7 +12,7 @@ namespace Dyson.CodeAnalysis.Binding.BoundStatements
 
         public override Type Type => typeof(void);
         public override BoundNodeKind Kind => BoundNodeKind.IniDefiningStatement;
-        public static Type IniType => typeof(string);
+        public static Type ExpectedType => typeof(string);
         public Type ExpressionType { get; }
     }
 }

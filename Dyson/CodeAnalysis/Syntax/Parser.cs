@@ -167,9 +167,15 @@ namespace Dyson.CodeAnalysis.Syntax
             {
                 case SyntaxKind.IniKeyword:
                     {
-                        SyntaxToken iniKeyword = MatchToken(SyntaxKind.IniKeyword);
+                        SyntaxToken iniKeyword = NextToken();
                         EqualsClauseSyntax equalsClause = (EqualsClauseSyntax)MatchExpression(SyntaxKind.EqualsClause);
                         return new IniDefiningStatementSyntax(iniKeyword, equalsClause);
+                    }
+                case SyntaxKind.SectionKeyword:
+                    {
+                        SyntaxToken sectionKeyword = NextToken();
+                        ExpressionSyntax sectionName = MatchExpression(SyntaxKind.LiteralExpression);
+                        return new SectionStatementSyntax(sectionKeyword, sectionName);
                     }
                 case SyntaxKind.IdentifierToken when PeekToken(1).Kind == SyntaxKind.EqualsToken:
                     {

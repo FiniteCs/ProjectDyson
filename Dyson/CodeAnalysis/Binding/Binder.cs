@@ -11,11 +11,13 @@ namespace Dyson.CodeAnalysis.Binding
     {
         private readonly List<string> diagnostics_;
         private readonly Dictionary<VariableSymbol, object> variables_;
+        private readonly List<SectionSymbol> sections_;
 
-        public Binder(Dictionary<VariableSymbol, object> variables)
+        public Binder(Dictionary<VariableSymbol, object> variables, List<SectionSymbol> sections)
         {
             diagnostics_ = new();
             variables_ = variables;
+            sections_ = sections;
         }
 
         public IEnumerable<string> Diagnostics => diagnostics_;
@@ -52,6 +54,7 @@ namespace Dyson.CodeAnalysis.Binding
                 SyntaxKind.IniDefiningStatement => BindIniDefiningStatement((IniDefiningStatementSyntax)syntax),
                 SyntaxKind.VariableDeclarationStatement => BindVariableDeclarationStatement((VariableDeclarationStatementSyntax)syntax),
                 SyntaxKind.VariableReassignmentStatement => BindReassignmentStatement((VariableReassignmentStatementSyntax)syntax),
+                SyntaxKind.SectionStatement => BindSectionStatement((SectionStatementSyntax)syntax),
                 SyntaxKind.InvalidStatement => null,
                 _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
             };
@@ -106,10 +109,9 @@ namespace Dyson.CodeAnalysis.Binding
         {
             BoundExpression expression = BindExpression(syntax.EqualsClause);
             BoundIniDefiningStatement ini = new(expression);
-            if (expression.Type != BoundIniDefiningStatement.IniType)
+            if (expression.Type != BoundIniDefiningStatement.ExpectedType)
             {
-                diagnostics_.Add($"Cannot convert type '{ini.ExpressionType.S()}'" +
-                                 $" to '{BoundIniDefiningStatement.IniType.S()}'");
+                ReportIncompatibleTypes(ini.ExpressionType, BoundIniDefiningStatement.ExpectedType);
                 return null;
             }
 
@@ -130,9 +132,9 @@ namespace Dyson.CodeAnalysis.Binding
             VariableSymbol variable = new(name, type);
             variables_[variable] = null;
             if (assignment.Type != type)
-                diagnostics_.Add($"Cannot convert type '{assignment.Type.S()}' to '{type.S()}'");
+                ReportIncompatibleTypes(assignment.Type, type);
 
-            return new BoundAssignmentExpression(variable, assignment);
+            return new BoundAssignmentStatement(variable, assignment);
         }
 
         private BoundStatement BindReassignmentStatement(VariableReassignmentStatementSyntax syntax)
@@ -148,12 +150,26 @@ namespace Dyson.CodeAnalysis.Binding
                 Type variableType = existingVariable.Type;
                 Type reassignmentType = reassignment.Type;
                 if (reassignmentType != variableType)
-                    diagnostics_.Add($"Cannot convert type '{reassignmentType.S()}' to '{variableType.S()}'");
+                    ReportIncompatibleTypes(reassignmentType, variableType);
 
-                return new BoundAssignmentExpression(existingVariable, reassignment);
+                return new BoundAssignmentStatement(existingVariable, reassignment);
             }
 
             return null;
         }
+
+        private BoundStatement BindSectionStatement(SectionStatementSyntax syntax)
+        {
+            BoundLiteralExpression expression = (BoundLiteralExpression)BindExpression(syntax.SectionName);
+            if (expression.Type != BoundSectionStatementSyntax.ExpectedType)
+                ReportIncompatibleTypes(expression.Type, BoundSectionStatementSyntax.ExpectedType);
+
+            string name = expression.Value.ToString();
+            SectionSymbol section = new(name);
+            sections_.Add(section);
+            return new BoundSectionStatementSyntax(section, expression);
+        }
+
+        private void ReportIncompatibleTypes(Type left, Type right) => diagnostics_.Add($"Cannot convert type '{left.S()}' to '{right.S()}'");
     }
 }
