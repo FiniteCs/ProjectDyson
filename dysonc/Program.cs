@@ -1,8 +1,8 @@
 ﻿global using System;
 global using System.Collections.Generic;
 global using System.Linq;
+
 using Dyson.CodeAnalysis;
-using Dyson.CodeAnalysis.Binding;
 using Dyson.CodeAnalysis.Syntax;
 
 namespace Dyson
@@ -11,6 +11,7 @@ namespace Dyson
     {
         private static void Main()
         {
+            Dictionary<VariableSymbol, object> variable = new();
             while (true)
             {
                 Console.ResetColor();
@@ -27,7 +28,7 @@ namespace Dyson
 
                 SyntaxTree syntaxTree = SyntaxTree.Parse(line);
                 Compilation compilation = new(syntaxTree);
-                Result result = compilation.GetResult();
+                Result result = compilation.GetResult(variable);
                 IEnumerable<string> diagnostics = result.Diagnostics;
 
                 PrettyPrint(syntaxTree.Root);

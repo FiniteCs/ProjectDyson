@@ -23,6 +23,7 @@
 
         // Keywords
         IniKeyword,
+        LongKeyword,
 
         // Clauses
         EqualsClause,
@@ -30,12 +31,17 @@
         // Expressions
         InvalidExpression,
 
-        BinaryExpression,
         ParenthesizedExpression,
         LiteralExpression,
+        VariableAssignmentExpression,
+        UnaryExpression,
+        BinaryExpression,
 
         // Statements
         IniDefiningStatement,
-        UnaryExpression,
+        VariableDeclarationStatement,
+        InvalidStatement,
+        VariableReassignmentStatement,
+        StringKeyword,
     }
 }

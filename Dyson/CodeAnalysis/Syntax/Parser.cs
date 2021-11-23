@@ -30,7 +30,7 @@ namespace Dyson.CodeAnalysis.Syntax
         private SyntaxToken PeekToken(int tokenOffset)
         {
             int index = position_ + tokenOffset;
-            if (tokenOffset >= tokens_.Length)
+            if (index >= tokens_.Length)
                 return tokens_[^1];
 
             return tokens_[index];
@@ -73,6 +73,20 @@ namespace Dyson.CodeAnalysis.Syntax
 
         private ExpressionSyntax ParseExpression()
         {
+            return ParseAssignmentExpression();
+        }
+
+        private ExpressionSyntax ParseAssignmentExpression()
+        {
+            if (PeekToken(0).Kind == SyntaxKind.IdentifierToken &&
+
+                PeekToken(1).Kind == SyntaxKind.EqualsToken)
+            {
+                SyntaxToken identifierToken = NextToken();
+                EqualsClauseSyntax equalsClause = (EqualsClauseSyntax)MatchExpression(SyntaxKind.EqualsClause);
+                return new AssignmentExpressionSyntax(identifierToken, equalsClause);
+            }
+
             return ParseBinaryExpression();
         }
 
@@ -116,7 +130,6 @@ namespace Dyson.CodeAnalysis.Syntax
                         SyntaxToken right = MatchToken(SyntaxKind.CloseParenthesisToken);
                         return new ParenthesizedExpressionSyntax(left, expression, right);
                     }
-
                 case SyntaxKind.EqualsToken:
                     {
                         SyntaxToken equalsToken = NextToken();
@@ -133,9 +146,33 @@ namespace Dyson.CodeAnalysis.Syntax
 
         private StatementSyntax ParsePrimaryStatement()
         {
-            SyntaxToken iniKeyword = MatchToken(SyntaxKind.IniKeyword);
-            ExpressionSyntax equalsClause = MatchExpression(SyntaxKind.EqualsClause);
-            return new IniDefiningStatementSyntax(iniKeyword, equalsClause);
+            if (Current.Kind.IsValueType())
+            {
+                SyntaxToken typeKeyword = NextToken();
+                AssignmentExpressionSyntax variableAssignment =
+                    (AssignmentExpressionSyntax)MatchExpression(SyntaxKind.VariableAssignmentExpression);
+
+                return new VariableDeclarationStatementSyntax(typeKeyword, variableAssignment);
+            }
+
+            switch (Current.Kind)
+            {
+                case SyntaxKind.IniKeyword:
+                    {
+                        SyntaxToken iniKeyword = MatchToken(SyntaxKind.IniKeyword);
+                        EqualsClauseSyntax equalsClause = (EqualsClauseSyntax)MatchExpression(SyntaxKind.EqualsClause);
+                        return new IniDefiningStatementSyntax(iniKeyword, equalsClause);
+                    }
+                case SyntaxKind.IdentifierToken when PeekToken(1).Kind == SyntaxKind.EqualsToken:
+                    {
+                        AssignmentExpressionSyntax variableAssignment =
+                            (AssignmentExpressionSyntax)MatchExpression(SyntaxKind.VariableAssignmentExpression);
+
+                        return new VariableReassignmentStatementSyntax(variableAssignment);
+                    }
+                default:
+                    return new InvalidStatement();
+            }
         }
     }
 }

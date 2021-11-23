@@ -12,5 +12,7 @@
         // Statements
         IniDefiningStatement,
         UnaryExpression,
+        VariableAssignment,
+        VariableDeclarationStatement,
     }
 }

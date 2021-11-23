@@ -38,8 +38,25 @@
             {
                 case "ini":
                     return SyntaxKind.IniKeyword;
+                case "long":
+                    return SyntaxKind.LongKeyword;
+                case "string":
+                    return SyntaxKind.StringKeyword;
                 default:
                     return SyntaxKind.IdentifierToken;
+            }
+        }
+
+        public static bool IsValueType(this SyntaxKind kind)
+        {
+            switch (kind)
+            {
+                case SyntaxKind.LongKeyword:
+                case SyntaxKind.StringKeyword:
+                    return true;
+
+                default:
+                    return false;
             }
         }
     }

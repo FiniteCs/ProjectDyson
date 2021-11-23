@@ -7,13 +7,28 @@ namespace Dyson.CodeAnalysis.Binding
     internal sealed class Binder
     {
         private readonly List<string> diagnostics_;
+        private readonly Dictionary<VariableSymbol, object> variables_;
 
-        public Binder()
+        public Binder(Dictionary<VariableSymbol, object> variables)
         {
             diagnostics_ = new();
+            variables_ = variables;
         }
 
         public IEnumerable<string> Diagnostics => diagnostics_;
+
+        private static Type BindValueType(SyntaxToken valueType)
+        {
+            switch (valueType.Kind)
+            {
+                case SyntaxKind.LongKeyword:
+                    return typeof(long);
+                case SyntaxKind.StringKeyword:
+                    return typeof(string);
+                default:
+                    return null;
+            }
+        }
 
         private BoundExpression BindExpression(ExpressionSyntax syntax)
         {
@@ -29,6 +44,8 @@ namespace Dyson.CodeAnalysis.Binding
                     return BindBinaryExpression((BinaryExpressionSyntax)syntax);
                 case SyntaxKind.EqualsClause:
                     return BindEqualsClause((EqualsClauseSyntax)syntax);
+                case SyntaxKind.InvalidExpression:
+                    return null;
                 default:
                     throw new Exception($"Unexpected syntax {syntax.Kind}");
             }
@@ -40,6 +57,12 @@ namespace Dyson.CodeAnalysis.Binding
             {
                 case SyntaxKind.IniDefiningStatement:
                     return BindIniDefiningStatement((IniDefiningStatementSyntax)syntax);
+                case SyntaxKind.VariableDeclarationStatement:
+                    return BindVariableDeclarationStatement((VariableDeclarationStatementSyntax)syntax);
+                case SyntaxKind.VariableReassignmentStatement:
+                    return BindReassignmentStatement((VariableReassignmentStatementSyntax)syntax);
+                case SyntaxKind.InvalidStatement:
+                    return null;
                 default:
                     throw new Exception($"Unexpected syntax {syntax.Kind}");
             }
@@ -83,15 +106,15 @@ namespace Dyson.CodeAnalysis.Binding
             return new BoundBinaryExpression(boundLeft, boundOperator, boundRight);
         }
 
-        private BoundExpression BindEqualsClause(EqualsClauseSyntax equalsClauseSyntax)
+        private BoundExpression BindEqualsClause(EqualsClauseSyntax syntax)
         {
-            BoundExpression expression = BindExpression(equalsClauseSyntax.Expression);
+            BoundExpression expression = BindExpression(syntax.Expression);
             return new BoundEqualsClause(expression);
         }
 
-        private BoundExpression BindIniDefiningStatement(IniDefiningStatementSyntax iniDefiningStatement)
+        private BoundExpression BindIniDefiningStatement(IniDefiningStatementSyntax syntax)
         {
-            BoundExpression expression = BindExpression(iniDefiningStatement.EqualsClause);
+            BoundExpression expression = BindExpression(syntax.EqualsClause);
             BoundIniDefiningStatement ini = new(expression);
             if (expression.Type != BoundIniDefiningStatement.IniType)
             {
@@ -100,6 +123,46 @@ namespace Dyson.CodeAnalysis.Binding
             }
 
             return new BoundIniDefiningStatement(expression);
+        }
+
+        private BoundExpression BindVariableDeclarationStatement(VariableDeclarationStatementSyntax syntax)
+        {
+            string name = syntax.VariableAssignment.IdentifierToken.Text;
+            BoundExpression assignment = BindExpression(syntax.VariableAssignment.EqualsClause.Expression);
+            
+            VariableSymbol existingVariable = variables_.Keys.FirstOrDefault(x => x.Name == name);
+            if (existingVariable != null)
+                diagnostics_.Add($"Variable '{name}' is already defined");
+
+
+            Type type = BindValueType(syntax.TypeKeyword);
+            VariableSymbol variable = new(name, type);
+            variables_[variable] = null;
+            if (assignment.Type != type)
+                diagnostics_.Add($"Cannot convert from type {assignment.Type} to type {type}");
+
+            return new BoundAssignmentExpression(variable, assignment);
+        }
+
+        private BoundExpression BindReassignmentStatement(VariableReassignmentStatementSyntax syntax)
+        {
+            string name = syntax.AssignmentExpression.IdentifierToken.Text;
+            BoundExpression reassignment = BindExpression(syntax.AssignmentExpression.EqualsClause);
+
+            VariableSymbol existingVariable = variables_.Keys.FirstOrDefault(x => x.Name == name);
+            if (existingVariable == null)
+                diagnostics_.Add($"Variable '{name}' does not exist");
+            else
+            {
+                Type variableType = existingVariable.Type;
+                Type reassignmentType = reassignment.Type;
+                if (reassignmentType != variableType)
+                    diagnostics_.Add($"Cannot convert from type {reassignmentType} to type {variableType}");
+
+                return new BoundAssignmentExpression(existingVariable, reassignment);
+            }
+
+            return null;
         }
     }
 }
