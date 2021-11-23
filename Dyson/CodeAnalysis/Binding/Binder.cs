@@ -74,7 +74,8 @@ namespace Dyson.CodeAnalysis.Binding
             BoundUnaryOperator boundOperator = BoundUnaryOperator.Bind(syntax.UnaryOperator.Kind, boundOperand.Type);
             if (boundOperator == null)
             {
-                diagnostics_.Add($"Unary operator '{syntax.UnaryOperator.Text}' is not defined for type {boundOperand.Type}.");
+                diagnostics_.Add($"Unary operator '{syntax.UnaryOperator.Text}'" +
+                                 $" is not defined for type '{boundOperand.Type.S()}'");
                 return boundOperand;
             }
             return new BoundUnaryExpression(boundOperator, boundOperand);
@@ -88,7 +89,7 @@ namespace Dyson.CodeAnalysis.Binding
             if (boundOperator == null)
             {
                 diagnostics_.Add($"Binary operator '{syntax.OperatorToken.Text}'" +
-                                 $" is not defined for types {boundLeft.Type} and {boundRight.Type}");
+                                 $" is not defined for types '{boundLeft.Type.S()}' and '{boundRight.Type.S()}'");
                 return boundLeft;
             }
 
@@ -107,7 +108,8 @@ namespace Dyson.CodeAnalysis.Binding
             BoundIniDefiningStatement ini = new(expression);
             if (expression.Type != BoundIniDefiningStatement.IniType)
             {
-                diagnostics_.Add($"Cannot convert from type {ini.ExpressionType} to type {BoundIniDefiningStatement.IniType}");
+                diagnostics_.Add($"Cannot convert type '{ini.ExpressionType.S()}'" +
+                                 $" to '{BoundIniDefiningStatement.IniType.S()}'");
                 return null;
             }
 
@@ -128,7 +130,7 @@ namespace Dyson.CodeAnalysis.Binding
             VariableSymbol variable = new(name, type);
             variables_[variable] = null;
             if (assignment.Type != type)
-                diagnostics_.Add($"Cannot convert from type {assignment.Type} to type {type}");
+                diagnostics_.Add($"Cannot convert type '{assignment.Type.S()}' to '{type.S()}'");
 
             return new BoundAssignmentExpression(variable, assignment);
         }
@@ -146,7 +148,7 @@ namespace Dyson.CodeAnalysis.Binding
                 Type variableType = existingVariable.Type;
                 Type reassignmentType = reassignment.Type;
                 if (reassignmentType != variableType)
-                    diagnostics_.Add($"Cannot convert from type {reassignmentType} to type {variableType}");
+                    diagnostics_.Add($"Cannot convert type '{reassignmentType.S()}' to '{variableType.S()}'");
 
                 return new BoundAssignmentExpression(existingVariable, reassignment);
             }
