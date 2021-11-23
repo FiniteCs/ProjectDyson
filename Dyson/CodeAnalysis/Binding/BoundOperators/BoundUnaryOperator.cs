@@ -24,6 +24,8 @@ namespace Dyson.CodeAnalysis.Binding.BoundOperators
 
         private static readonly BoundUnaryOperator[] _operators =
         {
+            new BoundUnaryOperator(SyntaxKind.BangToken, BoundUnaryOperatorKind.LogicalNegation, typeof(bool)),
+
             new BoundUnaryOperator(SyntaxKind.PlusToken, BoundUnaryOperatorKind.Identity, typeof(long)),
             new BoundUnaryOperator(SyntaxKind.MinusToken, BoundUnaryOperatorKind.Negation, typeof(long)),
         };

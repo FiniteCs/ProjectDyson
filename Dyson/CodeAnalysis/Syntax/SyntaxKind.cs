@@ -6,16 +6,24 @@
         EndOfFileToken,
         BadToken,
 
+        WhitespaceToken,
+        OpenParenthesisToken,
+        CloseParenthesisToken,
+        IdentifierToken,
+
+        // Binary Operators
         PlusToken,
         MinusToken,
         StarToken,
         SlashToken,
         EqualsToken,
+        EqualsEqualsToken,
+        BangEqualsToken,
+        AmpersandAmpersandToken,
+        PipePipeToken,
 
-        WhitespaceToken,
-        OpenParenthesisToken,
-        CloseParenthesisToken,
-        IdentifierToken,
+        // Unary
+        BangToken,
 
         // Literals
         NumberToken,
@@ -24,6 +32,10 @@
         // Keywords
         IniKeyword,
         LongKeyword,
+        StringKeyword,
+        BoolKeyword,
+        TrueKeyword,
+        FalseKeyword,
 
         // Clauses
         EqualsClause,
@@ -42,6 +54,5 @@
         VariableDeclarationStatement,
         InvalidStatement,
         VariableReassignmentStatement,
-        StringKeyword,
     }
 }

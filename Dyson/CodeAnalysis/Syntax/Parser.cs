@@ -79,7 +79,6 @@ namespace Dyson.CodeAnalysis.Syntax
         private ExpressionSyntax ParseAssignmentExpression()
         {
             if (PeekToken(0).Kind == SyntaxKind.IdentifierToken &&
-
                 PeekToken(1).Kind == SyntaxKind.EqualsToken)
             {
                 SyntaxToken identifierToken = NextToken();
@@ -130,6 +129,15 @@ namespace Dyson.CodeAnalysis.Syntax
                         SyntaxToken right = MatchToken(SyntaxKind.CloseParenthesisToken);
                         return new ParenthesizedExpressionSyntax(left, expression, right);
                     }
+
+                case SyntaxKind.FalseKeyword:
+                case SyntaxKind.TrueKeyword:
+                    {
+                        SyntaxToken keywordToken = NextToken();
+                        bool value = keywordToken.Kind == SyntaxKind.TrueKeyword;
+                        return new LiteralExpressionSyntax(keywordToken, value);
+                    }
+
                 case SyntaxKind.EqualsToken:
                     {
                         SyntaxToken equalsToken = NextToken();

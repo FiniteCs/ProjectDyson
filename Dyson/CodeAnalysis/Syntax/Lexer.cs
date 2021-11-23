@@ -25,6 +25,8 @@
 
         private char Current => PeekChar(0);
 
+        private char Lookahead => PeekChar(1);
+
         public SyntaxToken Lex()
         {
             if (Current == '\0')
@@ -46,8 +48,43 @@
                     return new SyntaxToken(SyntaxKind.OpenParenthesisToken, position_++, "(", null);
                 case ')':
                     return new SyntaxToken(SyntaxKind.CloseParenthesisToken, position_++, ")", null);
+                case '&':
+                    if (Lookahead == '&')
+                    {
+                        position_ += 2;
+                        return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, start, "&&", null);
+                    }
+                    break;
+                case '|':
+                    if (Lookahead == '|')
+                    {
+                        position_ += 2;
+                        return new SyntaxToken(SyntaxKind.PipePipeToken, start, "||", null);
+                    }
+                    break;
                 case '=':
-                    return new SyntaxToken(SyntaxKind.EqualsToken, position_++, "=", null);
+                    if (Lookahead == '=')
+                    {
+                        position_ += 2;
+                        return new SyntaxToken(SyntaxKind.EqualsEqualsToken, start, "==", null);
+                    }
+                    else
+                    {
+                        position_ += 1;
+                        return new SyntaxToken(SyntaxKind.EqualsToken, start, "=", null);
+                    }
+                case '!':
+                    if (Lookahead == '=')
+                    {
+                        position_ += 2;
+                        return new SyntaxToken(SyntaxKind.BangEqualsToken, start, "!=", null);
+                    }
+                    else
+                    {
+                        position_ += 1;
+                        return new SyntaxToken(SyntaxKind.BangToken, start, "!", null);
+                    }
+
                 default:
                     break;
             }

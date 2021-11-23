@@ -26,6 +26,7 @@ namespace Dyson.CodeAnalysis.Binding
             {
                 SyntaxKind.LongKeyword => typeof(long),
                 SyntaxKind.StringKeyword => typeof(string),
+                SyntaxKind.BoolKeyword => typeof(bool),
                 _ => null,
             };
         }
@@ -63,7 +64,7 @@ namespace Dyson.CodeAnalysis.Binding
 
         private static BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
         {
-            object value = syntax.LiteralToken.Value ?? 0;
+            object value = syntax.Value ?? 0;
             return new BoundLiteralExpression(value);
         }
 
