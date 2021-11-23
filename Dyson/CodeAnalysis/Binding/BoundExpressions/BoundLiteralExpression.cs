@@ -1,4 +1,6 @@
-﻿namespace Dyson.CodeAnalysis.Binding
+﻿using Dyson.CodeAnalysis.Binding.BoundExpressions;
+
+namespace Dyson.CodeAnalysis.Binding
 {
     internal class BoundLiteralExpression
         : BoundExpression

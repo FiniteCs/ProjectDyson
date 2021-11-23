@@ -1,6 +1,6 @@
 ﻿using Dyson.CodeAnalysis.Syntax;
 
-namespace Dyson.CodeAnalysis.Binding
+namespace Dyson.CodeAnalysis.Binding.BoundOperators
 {
     internal sealed class BoundBinaryOperator
     {

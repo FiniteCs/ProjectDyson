@@ -1,4 +1,6 @@
-﻿namespace Dyson.CodeAnalysis.Binding
+﻿using Dyson.CodeAnalysis.Binding.BoundOperators;
+
+namespace Dyson.CodeAnalysis.Binding.BoundExpressions
 {
     internal sealed class BoundBinaryExpression
         : BoundExpression

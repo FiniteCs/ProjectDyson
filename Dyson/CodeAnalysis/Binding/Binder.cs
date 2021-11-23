@@ -1,5 +1,8 @@
-﻿using Dyson.CodeAnalysis.Syntax.Expressions;
+﻿using Dyson.CodeAnalysis.Binding.BoundExpressions;
+using Dyson.CodeAnalysis.Binding.BoundOperators;
+using Dyson.CodeAnalysis.Binding.BoundStatements;
 using Dyson.CodeAnalysis.Syntax;
+using Dyson.CodeAnalysis.Syntax.Expressions;
 using Dyson.CodeAnalysis.Syntax.Statements;
 
 namespace Dyson.CodeAnalysis.Binding
@@ -51,7 +54,7 @@ namespace Dyson.CodeAnalysis.Binding
             }
         }
 
-        public BoundExpression BindStatement(StatementSyntax syntax)
+        public BoundStatement BindStatement(StatementSyntax syntax)
         {
             switch (syntax.Kind)
             {
@@ -112,24 +115,24 @@ namespace Dyson.CodeAnalysis.Binding
             return new BoundEqualsClause(expression);
         }
 
-        private BoundExpression BindIniDefiningStatement(IniDefiningStatementSyntax syntax)
+        private BoundStatement BindIniDefiningStatement(IniDefiningStatementSyntax syntax)
         {
             BoundExpression expression = BindExpression(syntax.EqualsClause);
             BoundIniDefiningStatement ini = new(expression);
             if (expression.Type != BoundIniDefiningStatement.IniType)
             {
                 diagnostics_.Add($"Cannot convert from type {ini.ExpressionType} to type {BoundIniDefiningStatement.IniType}");
-                return expression;
+                return null;
             }
 
             return new BoundIniDefiningStatement(expression);
         }
 
-        private BoundExpression BindVariableDeclarationStatement(VariableDeclarationStatementSyntax syntax)
+        private BoundStatement BindVariableDeclarationStatement(VariableDeclarationStatementSyntax syntax)
         {
             string name = syntax.VariableAssignment.IdentifierToken.Text;
             BoundExpression assignment = BindExpression(syntax.VariableAssignment.EqualsClause.Expression);
-            
+
             VariableSymbol existingVariable = variables_.Keys.FirstOrDefault(x => x.Name == name);
             if (existingVariable != null)
                 diagnostics_.Add($"Variable '{name}' is already defined");
@@ -144,7 +147,7 @@ namespace Dyson.CodeAnalysis.Binding
             return new BoundAssignmentExpression(variable, assignment);
         }
 
-        private BoundExpression BindReassignmentStatement(VariableReassignmentStatementSyntax syntax)
+        private BoundStatement BindReassignmentStatement(VariableReassignmentStatementSyntax syntax)
         {
             string name = syntax.AssignmentExpression.IdentifierToken.Text;
             BoundExpression reassignment = BindExpression(syntax.AssignmentExpression.EqualsClause);

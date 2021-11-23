@@ -1,7 +1,9 @@
-﻿namespace Dyson.CodeAnalysis.Binding
+﻿using Dyson.CodeAnalysis.Binding.BoundExpressions;
+
+namespace Dyson.CodeAnalysis.Binding.BoundStatements
 {
     internal sealed class BoundAssignmentExpression
-        : BoundExpression
+        : BoundStatement
     {
         public BoundAssignmentExpression(VariableSymbol variable, BoundExpression expression)
         {

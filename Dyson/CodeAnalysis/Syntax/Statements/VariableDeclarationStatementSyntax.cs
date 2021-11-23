@@ -5,7 +5,7 @@ namespace Dyson.CodeAnalysis.Syntax.Statements
     internal sealed class VariableDeclarationStatementSyntax
         : StatementSyntax
     {
-        public VariableDeclarationStatementSyntax(SyntaxToken typeKeyword, 
+        public VariableDeclarationStatementSyntax(SyntaxToken typeKeyword,
                                                   AssignmentExpressionSyntax variableAssignment)
         {
             TypeKeyword = typeKeyword;

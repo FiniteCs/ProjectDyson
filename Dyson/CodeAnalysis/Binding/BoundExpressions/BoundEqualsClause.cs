@@ -1,4 +1,4 @@
-﻿namespace Dyson.CodeAnalysis.Binding
+﻿namespace Dyson.CodeAnalysis.Binding.BoundExpressions
 {
     internal sealed class BoundEqualsClause
         : BoundExpression
