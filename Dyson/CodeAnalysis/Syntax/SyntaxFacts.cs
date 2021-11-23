@@ -34,17 +34,13 @@
 
         public static SyntaxKind GetKeywordKind(string text)
         {
-            switch (text)
+            return text switch
             {
-                case "ini":
-                    return SyntaxKind.IniKeyword;
-                case "long":
-                    return SyntaxKind.LongKeyword;
-                case "string":
-                    return SyntaxKind.StringKeyword;
-                default:
-                    return SyntaxKind.IdentifierToken;
-            }
+                "ini" => SyntaxKind.IniKeyword,
+                "long" => SyntaxKind.LongKeyword,
+                "string" => SyntaxKind.StringKeyword,
+                _ => SyntaxKind.IdentifierToken,
+            };
         }
 
         public static bool IsValueType(this SyntaxKind kind)

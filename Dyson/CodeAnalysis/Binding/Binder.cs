@@ -22,53 +22,38 @@ namespace Dyson.CodeAnalysis.Binding
 
         private static Type BindValueType(SyntaxToken valueType)
         {
-            switch (valueType.Kind)
+            return valueType.Kind switch
             {
-                case SyntaxKind.LongKeyword:
-                    return typeof(long);
-                case SyntaxKind.StringKeyword:
-                    return typeof(string);
-                default:
-                    return null;
-            }
+                SyntaxKind.LongKeyword => typeof(long),
+                SyntaxKind.StringKeyword => typeof(string),
+                _ => null,
+            };
         }
 
         private BoundExpression BindExpression(ExpressionSyntax syntax)
         {
-            switch (syntax.Kind)
+            return syntax.Kind switch
             {
-                case SyntaxKind.ParenthesizedExpression:
-                    return BindParenthesizedExpression((ParenthesizedExpressionSyntax)syntax);
-                case SyntaxKind.LiteralExpression:
-                    return BindLiteralExpression((LiteralExpressionSyntax)syntax);
-                case SyntaxKind.UnaryExpression:
-                    return BindUnaryExpression((UnaryExpressionSyntax)syntax);
-                case SyntaxKind.BinaryExpression:
-                    return BindBinaryExpression((BinaryExpressionSyntax)syntax);
-                case SyntaxKind.EqualsClause:
-                    return BindEqualsClause((EqualsClauseSyntax)syntax);
-                case SyntaxKind.InvalidExpression:
-                    return null;
-                default:
-                    throw new Exception($"Unexpected syntax {syntax.Kind}");
-            }
+                SyntaxKind.ParenthesizedExpression => BindParenthesizedExpression((ParenthesizedExpressionSyntax)syntax),
+                SyntaxKind.LiteralExpression => BindLiteralExpression((LiteralExpressionSyntax)syntax),
+                SyntaxKind.UnaryExpression => BindUnaryExpression((UnaryExpressionSyntax)syntax),
+                SyntaxKind.BinaryExpression => BindBinaryExpression((BinaryExpressionSyntax)syntax),
+                SyntaxKind.EqualsClause => BindEqualsClause((EqualsClauseSyntax)syntax),
+                SyntaxKind.InvalidExpression => null,
+                _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
+            };
         }
 
         public BoundStatement BindStatement(StatementSyntax syntax)
         {
-            switch (syntax.Kind)
+            return syntax.Kind switch
             {
-                case SyntaxKind.IniDefiningStatement:
-                    return BindIniDefiningStatement((IniDefiningStatementSyntax)syntax);
-                case SyntaxKind.VariableDeclarationStatement:
-                    return BindVariableDeclarationStatement((VariableDeclarationStatementSyntax)syntax);
-                case SyntaxKind.VariableReassignmentStatement:
-                    return BindReassignmentStatement((VariableReassignmentStatementSyntax)syntax);
-                case SyntaxKind.InvalidStatement:
-                    return null;
-                default:
-                    throw new Exception($"Unexpected syntax {syntax.Kind}");
-            }
+                SyntaxKind.IniDefiningStatement => BindIniDefiningStatement((IniDefiningStatementSyntax)syntax),
+                SyntaxKind.VariableDeclarationStatement => BindVariableDeclarationStatement((VariableDeclarationStatementSyntax)syntax),
+                SyntaxKind.VariableReassignmentStatement => BindReassignmentStatement((VariableReassignmentStatementSyntax)syntax),
+                SyntaxKind.InvalidStatement => null,
+                _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
+            };
         }
 
         private BoundExpression BindParenthesizedExpression(ParenthesizedExpressionSyntax syntax)
