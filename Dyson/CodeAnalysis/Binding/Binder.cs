@@ -67,7 +67,7 @@ namespace Dyson.CodeAnalysis.Binding
 
         private static BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
         {
-            object value = syntax.Value ?? 0;
+            object value = syntax.Value ?? (long)0;
             return new BoundLiteralExpression(value);
         }
 
