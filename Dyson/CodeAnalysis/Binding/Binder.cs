@@ -1,6 +1,8 @@
 ﻿using Dyson.CodeAnalysis.Binding.BoundExpressions;
 using Dyson.CodeAnalysis.Binding.BoundOperators;
 using Dyson.CodeAnalysis.Binding.BoundStatements;
+using Dyson.CodeAnalysis.Binding.Types;
+using Dyson.CodeAnalysis.Binding.Types.Properties;
 using Dyson.CodeAnalysis.Syntax;
 using Dyson.CodeAnalysis.Syntax.Expressions;
 using Dyson.CodeAnalysis.Syntax.Statements;
@@ -42,6 +44,11 @@ namespace Dyson.CodeAnalysis.Binding
                 SyntaxKind.UnaryExpression => BindUnaryExpression((UnaryExpressionSyntax)syntax),
                 SyntaxKind.BinaryExpression => BindBinaryExpression((BinaryExpressionSyntax)syntax),
                 SyntaxKind.EqualsClause => BindEqualsClause((EqualsClauseSyntax)syntax),
+                SyntaxKind.NameExpression => BindNameExpression((NameExpressionSyntax)syntax),
+                SyntaxKind.BracketedArgumentList => BindBracketedArgumentList((BracketedArgumentListSyntax)syntax),
+                SyntaxKind.IniKeyIndexingExpression => BindIniKeyIndexingExpression((IniKeyIndexingExpressionSyntax)syntax),
+                SyntaxKind.MemberAccessExpression => BindMemberAccessExpression((MemberAccessExpressionSyntax)syntax),
+
                 SyntaxKind.InvalidExpression => null,
                 _ => throw new Exception($"Unexpected syntax {syntax.Kind}"),
             };
@@ -105,23 +112,54 @@ namespace Dyson.CodeAnalysis.Binding
             return new BoundEqualsClause(expression);
         }
 
-        private BoundStatement BindIniDefiningStatement(IniDefiningStatementSyntax syntax)
+        private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
         {
-            BoundExpression expression = BindExpression(syntax.EqualsClause);
-            BoundIniDefiningStatement ini = new(expression);
-            if (expression.Type != BoundIniDefiningStatement.ExpectedType)
+            string name = syntax.IdentifierToken.Text;
+
+            VariableSymbol variable = variables_.Keys.FirstOrDefault(v => v.Name == name);
+
+            if (variable == null)
             {
-                ReportIncompatibleTypes(ini.ExpressionType, BoundIniDefiningStatement.ExpectedType);
-                return null;
+                diagnostics_.Add($"Variable '{name}' doesn't exist.");
+                return new BoundLiteralExpression(0);
             }
 
-            return new BoundIniDefiningStatement(expression);
+            Type type = variable.GetType();
+            return new BoundVariableExpression(variable);
+        }
+
+        private BoundExpression BindBracketedArgumentList(BracketedArgumentListSyntax syntax)
+        {
+            return new BoundBracketedArgumentList(BindExpression(syntax.IndexerExpression));
+        }
+
+        private BoundExpression BindIniKeyIndexingExpression(IniKeyIndexingExpressionSyntax syntax)
+        {
+            BoundExpression boundExpression = BindExpression(syntax.BracketedArgumentList);
+            BoundIniKeyIndexingExpression boundIniKeyIndexing = new(boundExpression);
+            if (boundIniKeyIndexing.IndexType != BoundIniKeyIndexingExpression.ExpectedIndexType)
+                ReportIncompatibleTypes(boundIniKeyIndexing.IndexType, BoundIniKeyIndexingExpression.ExpectedIndexType);
+
+            return boundIniKeyIndexing;
+        }
+
+        private BoundExpression BindMemberAccessExpression(MemberAccessExpressionSyntax syntax)
+        {
+            BoundExpression boundExpression = BindExpression(syntax.Expression);
+            StaticType type = StaticType.GetStaticType(boundExpression.Type);
+            if (type == null)
+                return boundExpression;
+
+            Property property = type.GetProperty(syntax.NameExpression.IdentifierToken.Text);
+            return new BoundMemberAccessExpression(type, property);
         }
 
         private BoundStatement BindVariableDeclarationStatement(VariableDeclarationStatementSyntax syntax)
         {
             string name = syntax.VariableAssignment.IdentifierToken.Text;
             BoundExpression assignment = BindExpression(syntax.VariableAssignment.EqualsClause.Expression);
+            if (assignment == null)
+                return null;
 
             VariableSymbol existingVariable = variables_.Keys.FirstOrDefault(x => x.Name == name);
             if (existingVariable != null)
@@ -135,6 +173,19 @@ namespace Dyson.CodeAnalysis.Binding
                 ReportIncompatibleTypes(assignment.Type, type);
 
             return new BoundAssignmentStatement(variable, assignment);
+        }
+
+        private BoundStatement BindIniDefiningStatement(IniDefiningStatementSyntax syntax)
+        {
+            BoundExpression expression = BindExpression(syntax.EqualsClause);
+            BoundIniDefiningStatement ini = new(expression);
+            if (expression.Type != BoundIniDefiningStatement.ExpectedType)
+            {
+                ReportIncompatibleTypes(ini.ExpressionType, BoundIniDefiningStatement.ExpectedType);
+                return null;
+            }
+
+            return new BoundIniDefiningStatement(expression);
         }
 
         private BoundStatement BindReassignmentStatement(VariableReassignmentStatementSyntax syntax)

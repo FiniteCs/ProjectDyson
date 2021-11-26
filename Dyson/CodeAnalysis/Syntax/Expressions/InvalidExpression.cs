@@ -3,17 +3,12 @@
     public sealed class InvalidExpression
         : ExpressionSyntax
     {
-        public InvalidExpression(SyntaxKind expressionKind)
-        {
-            Kind = expressionKind;
-        }
-
         public InvalidExpression()
         {
 
         }
 
-        public override SyntaxKind Kind { get; }
+        public override SyntaxKind Kind => SyntaxKind.InvalidExpression;
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {

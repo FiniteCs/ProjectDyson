@@ -9,7 +9,10 @@
         WhitespaceToken,
         OpenParenthesisToken,
         CloseParenthesisToken,
+        OpenBracketToken,
+        CloseBracketToken,
         IdentifierToken,
+        DotToken,
 
         // Binary Operators
         PlusToken,
@@ -26,8 +29,8 @@
         BangToken,
 
         // Literals
-        NumberToken,
-        StringToken,
+        NumericLiteralToken,
+        StringLiteralToken,
 
         // Keywords
         IniKeyword,
@@ -37,6 +40,7 @@
         TrueKeyword,
         FalseKeyword,
         SectionKeyword,
+        KeyKeyword,
 
         // Clauses
         EqualsClause,
@@ -49,6 +53,10 @@
         VariableAssignmentExpression,
         UnaryExpression,
         BinaryExpression,
+        BracketedArgumentList,
+        NameExpression,
+        IniKeyIndexingExpression,
+        MemberAccessExpression,
 
         // Statements
         IniDefiningStatement,

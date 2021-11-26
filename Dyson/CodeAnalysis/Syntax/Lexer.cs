@@ -48,6 +48,12 @@
                     return new SyntaxToken(SyntaxKind.OpenParenthesisToken, position_++, "(", null);
                 case ')':
                     return new SyntaxToken(SyntaxKind.CloseParenthesisToken, position_++, ")", null);
+                case '[':
+                    return new SyntaxToken(SyntaxKind.OpenBracketToken, position_++, "[", null);
+                case ']':
+                    return new SyntaxToken(SyntaxKind.CloseBracketToken, position_++, "]", null);
+                case '.':
+                    return new SyntaxToken(SyntaxKind.DotToken, position_++, ".", null);
                 case '&':
                     if (Lookahead == '&')
                     {
@@ -100,7 +106,7 @@
                 int length = position_ - hStart;
                 string text = text_.Substring(hStart, length);
                 position_++;
-                return new SyntaxToken(SyntaxKind.StringToken, hStart, text, text);
+                return new SyntaxToken(SyntaxKind.StringLiteralToken, hStart, text, text);
             }
 
             if (char.IsWhiteSpace(Current))
@@ -134,7 +140,7 @@
                 if (!long.TryParse(text, out long value))
                     diagnostics_.Add($"{text} is not a valid Int64");
 
-                return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);
+                return new SyntaxToken(SyntaxKind.NumericLiteralToken, start, text, value);
             }
 
             diagnostics_.Add($"Unexpected character '{Current}'");

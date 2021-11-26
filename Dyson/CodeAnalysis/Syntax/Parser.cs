@@ -54,16 +54,6 @@ namespace Dyson.CodeAnalysis.Syntax
             return new SyntaxToken(kind, Current.Position, null, null);
         }
 
-        private ExpressionSyntax MatchExpression(SyntaxKind kind)
-        {
-            ExpressionSyntax expression = ParseExpression();
-            if (expression.Kind == kind)
-                return expression;
-
-            diagnostics_.Add($"Unexpected expression '{expression.Kind}' expected '{kind}'");
-            return new InvalidExpression(kind);
-        }
-
         public SyntaxTree Parse()
         {
             StatementSyntax statement = ParsePrimaryStatement();
@@ -73,17 +63,55 @@ namespace Dyson.CodeAnalysis.Syntax
 
         private ExpressionSyntax ParseExpression()
         {
-            return ParseAssignmentExpression();
+            return ParseIndexing();
+        }
+
+        private ExpressionSyntax ParseIndexing()
+        {
+            if (Current.Kind == SyntaxKind.OpenBracketToken)
+            {
+                SyntaxToken openBracket = NextToken();
+                ExpressionSyntax expression = ParseExpression();
+                SyntaxToken closeBracket = MatchToken(SyntaxKind.CloseBracketToken);
+                return new BracketedArgumentListSyntax(openBracket, expression, closeBracket);
+            }
+
+            return ParseMemberAccess();
+        }
+
+        private ExpressionSyntax ParseMemberAccess()
+        {
+            ExpressionSyntax expression = ParseAssignmentExpression();
+
+            while (Current.Kind == SyntaxKind.DotToken)
+            {
+                List<MemberAccessExpressionSyntax> memberAccesses = new();
+                SyntaxToken dotToken = NextToken();
+                ExpressionSyntax ex = ParseExpression();
+                if (ex is MemberAccessExpressionSyntax m)
+                {
+                    memberAccesses.Add(m);
+                    continue;
+                }
+                else if (ex.Kind != SyntaxKind.NameExpression)
+                    return new InvalidExpression();
+                return new MemberAccessExpressionSyntax(expression, dotToken, (NameExpressionSyntax)ex, memberAccesses);
+            }
+
+            return expression;
         }
 
         private ExpressionSyntax ParseAssignmentExpression()
         {
-            if (PeekToken(0).Kind == SyntaxKind.IdentifierToken &&
+            if (Current.Kind == SyntaxKind.IdentifierToken &&
                 PeekToken(1).Kind == SyntaxKind.EqualsToken)
             {
                 SyntaxToken identifierToken = NextToken();
-                EqualsClauseSyntax equalsClause = (EqualsClauseSyntax)MatchExpression(SyntaxKind.EqualsClause);
-                return new AssignmentExpressionSyntax(identifierToken, equalsClause);
+                ExpressionSyntax equalsClause = ParseExpression();
+                if (equalsClause.Kind != SyntaxKind.EqualsClause)
+                    return new InvalidExpression();
+
+                return new AssignmentExpressionSyntax(identifierToken, (EqualsClauseSyntax)equalsClause);
             }
 
             return ParseBinaryExpression();
@@ -120,6 +148,12 @@ namespace Dyson.CodeAnalysis.Syntax
 
         private ExpressionSyntax ParsePrimaryExpression()
         {
+            if (Current.Kind.IsLiteral())
+            {
+                SyntaxToken literalToken = NextToken();
+                return new LiteralExpressionSyntax(literalToken);
+            }
+
             switch (Current.Kind)
             {
                 case SyntaxKind.OpenParenthesisToken:
@@ -138,6 +172,19 @@ namespace Dyson.CodeAnalysis.Syntax
                         return new LiteralExpressionSyntax(keywordToken, value);
                     }
 
+                case SyntaxKind.IniKeyword:
+                    {
+                        SyntaxToken iniKeyword = NextToken();
+                        ExpressionSyntax indexingExpression = ParseExpression();
+                        return new IniKeyIndexingExpressionSyntax(iniKeyword, indexingExpression);
+                    }
+
+                case SyntaxKind.IdentifierToken:
+                    {
+                        SyntaxToken identifier = NextToken();
+                        return new NameExpressionSyntax(identifier);
+                    }
+
                 case SyntaxKind.EqualsToken:
                     {
                         SyntaxToken equalsToken = NextToken();
@@ -146,8 +193,7 @@ namespace Dyson.CodeAnalysis.Syntax
                     }
                 default:
                     {
-                        SyntaxToken literalToken = NextToken();
-                        return new LiteralExpressionSyntax(literalToken);
+                        return new InvalidExpression();
                     }
             }
         }
@@ -157,10 +203,11 @@ namespace Dyson.CodeAnalysis.Syntax
             if (Current.Kind.IsValueType())
             {
                 SyntaxToken typeKeyword = NextToken();
-                AssignmentExpressionSyntax variableAssignment =
-                    (AssignmentExpressionSyntax)MatchExpression(SyntaxKind.VariableAssignmentExpression);
+                ExpressionSyntax variableAssignment = ParseExpression();
+                if (variableAssignment.Kind != SyntaxKind.VariableAssignmentExpression)
+                    return new InvalidStatement();
 
-                return new VariableDeclarationStatementSyntax(typeKeyword, variableAssignment);
+                return new VariableDeclarationStatementSyntax(typeKeyword, (AssignmentExpressionSyntax)variableAssignment);
             }
 
             switch (Current.Kind)
@@ -168,21 +215,25 @@ namespace Dyson.CodeAnalysis.Syntax
                 case SyntaxKind.IniKeyword:
                     {
                         SyntaxToken iniKeyword = NextToken();
-                        EqualsClauseSyntax equalsClause = (EqualsClauseSyntax)MatchExpression(SyntaxKind.EqualsClause);
-                        return new IniDefiningStatementSyntax(iniKeyword, equalsClause);
+                        ExpressionSyntax equalsClause = ParseExpression();
+                        if (equalsClause.Kind != SyntaxKind.EqualsClause)
+                            return new InvalidStatement();
+
+                        return new IniDefiningStatementSyntax(iniKeyword, (EqualsClauseSyntax)equalsClause);
                     }
                 case SyntaxKind.SectionKeyword:
                     {
                         SyntaxToken sectionKeyword = NextToken();
-                        ExpressionSyntax sectionName = MatchExpression(SyntaxKind.LiteralExpression);
+                        ExpressionSyntax sectionName = ParseExpression();
                         return new SectionStatementSyntax(sectionKeyword, sectionName);
                     }
                 case SyntaxKind.IdentifierToken when PeekToken(1).Kind == SyntaxKind.EqualsToken:
                     {
-                        AssignmentExpressionSyntax variableAssignment =
-                            (AssignmentExpressionSyntax)MatchExpression(SyntaxKind.VariableAssignmentExpression);
+                        ExpressionSyntax variableAssignment = ParseExpression();
+                        if (variableAssignment.Kind == SyntaxKind.VariableAssignmentExpression)
+                            return new InvalidStatement();
 
-                        return new VariableReassignmentStatementSyntax(variableAssignment);
+                        return new VariableReassignmentStatementSyntax((AssignmentExpressionSyntax)variableAssignment);
                     }
                 default:
                     return new InvalidStatement();

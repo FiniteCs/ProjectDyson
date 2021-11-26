@@ -9,11 +9,15 @@
         BinaryExpression,
         LiteralExpression,
         UnaryExpression,
+        VariableExpression,
+        BracketedArgumentList,
+        IniKeyIndexing,
 
         // Statements
         IniDefiningStatement,
         VariableAssignment,
         VariableDeclarationStatement,
         SectionStatement,
+        MemberAccess,
     }
 }

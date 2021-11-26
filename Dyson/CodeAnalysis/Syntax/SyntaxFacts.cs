@@ -53,8 +53,22 @@
                 "false" => SyntaxKind.FalseKeyword,
                 "bool" => SyntaxKind.BoolKeyword,
                 "section" => SyntaxKind.SectionKeyword,
+                "key" => SyntaxKind.KeyKeyword,
                 _ => SyntaxKind.IdentifierToken,
             };
+        }
+
+        public static bool IsLiteral(this SyntaxKind kind)
+        {
+            switch (kind)
+            {
+                case SyntaxKind.NumericLiteralToken:
+                case SyntaxKind.StringLiteralToken:
+                    return true;
+
+                default:
+                    return false;
+            }
         }
 
         public static bool IsValueType(this SyntaxKind kind)
@@ -64,6 +78,7 @@
                 case SyntaxKind.LongKeyword:
                 case SyntaxKind.StringKeyword:
                 case SyntaxKind.BoolKeyword:
+                case SyntaxKind.KeyKeyword:
                     return true;
 
                 default:
